@@ -7,10 +7,10 @@ redirectIfNotLoggedIn();
 
 $userId = $_SESSION['user_id'];
 $result = mysqli_query($conn, "
-    SELECT id, title, equipment, urgency, description, status, created_at 
+    SELECT user_id, title, equipement_id, urgence, description, statut, date_creation 
     FROM tickets 
-    WHERE created_by = $userId
-    ORDER BY created_at DESC
+    WHERE user_id = $userId
+    ORDER BY date_creation DESC
 ");
 
 if (!$result) {

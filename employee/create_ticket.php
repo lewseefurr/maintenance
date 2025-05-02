@@ -10,21 +10,28 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $equipment = trim($_POST['equipment'] ?? '');
-    $urgency = $_POST['urgency'] ?? 'medium';
+    $equipement_id = trim($_POST['equipement_id'] ?? '');
+    $urgence = $_POST['urgence'] ?? 'moyenne';
+    $userId = $_SESSION['user_id'];
     
-    if (empty($title)) {
-        $error = "Title is required";
+    $check_user = $conn->prepare("SELECT user_id FROM users WHERE user_id = ?");
+    $check_user->bind_param("i", $userId);
+    $check_user->execute();
+    $check_user->store_result();
+
+    if ($check_user->num_rows === 0) {
+        $error = "Utilisateur invalide";
+    } elseif (empty($title)) {
+        $error = "Le titre est requis";
     } else {
-        $userId = $_SESSION['user_id'];
-        $stmt = $conn->prepare("INSERT INTO tickets (title, description, equipment, urgency, created_by) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssi", $title, $description, $equipment, $urgency, $userId);
+        $stmt = $conn->prepare("INSERT INTO tickets (title, description, equipement_id, urgence, user_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssi", $title, $description, $equipement_id, $urgence, $userId);
         
         if ($stmt->execute()) {
             header("Location: dashboard.php");
             exit();
         } else {
-            $error = "Failed to create ticket: " . $conn->error;
+            $error = "Erreur lors de la création du ticket: " . $conn->error;
         }
     }
 }
@@ -75,13 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <div>
-            <label for="equipment">Equipment:</label>
-            <input type="text" name="equipment" id="equipment" required>
+            <label for="equipement_id">Equipment:</label>
+            <input type="text" name="equipment_id" id="equipment_id" required>
         </div>
         
         <div>
-            <label for="urgency">Niveau d'urgence</label>
-            <select name="urgency" id="urgency" required>
+            <label for="urgence">Niveau d'urgence</label>
+            <select name="urgence" id="urgence" required>
                 <option value="low">Bas</option>
                 <option value="medium" selected>Moyen</option>
                 <option value="high">Elevé</option>
