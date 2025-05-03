@@ -10,20 +10,20 @@ ini_set('display_errors', 1);
 
 $queries = [
     "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(100) UNIQUE,
         password VARCHAR(255),
-        role ENUM('employee','technician','admin') DEFAULT 'employee'
+        role ENUM('employe','technicien','admin') DEFAULT 'employe'
     )",
     
     "CREATE TABLE IF NOT EXISTS tickets (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        ticket_id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(100) NOT NULL,
-        equipment VARCHAR(50) NOT NULL,
-        urgency ENUM('low','medium','high') DEFAULT 'medium',
+        equipement VARCHAR(50) NOT NULL,
+        urgence ENUM('low','medium','high') DEFAULT 'medium',
         status ENUM('open','in_progress','resolved') DEFAULT 'open',
-        created_by INT REFERENCES users(id),
-        assigned_to INT NULL REFERENCES users(id),
+        created_by INT REFERENCES users(user_id),
+        assigned_to INT NULL REFERENCES users(user_id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];

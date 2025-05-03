@@ -1,42 +1,42 @@
 <?php
 session_start();
-// require __DIR__ . '/../includes/auth.php';
-require __DIR__ . '/../includes/db.php';
+require __DIR__ . '/../includes/auth.php';
+include __DIR__ . '/../includes/db.php';
 
 $error = '';
 
-if(isset($_POST['submit'])){
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'technician') {
+        header("Location: ../technicians/dashboard.php");
+    } else {
+        header("Location: ../employee/dashboard.php");
+    }
+    exit();
+}
+
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    $username = sanitizeInput($_POST['username']);
+    $password = $_POST['password']; 
     
-    $sql = "SELECT * FROM users WHERE username = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
-    
-    if($user && password_verify($password, $user['password'])){
+    $result = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
+    $user = mysqli_fetch_assoc($result);
+
+    if ($user && verifyPassword($password, $user['password'])) {
         $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role']; // Stocker le rôle
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $user['role']; 
         
-        // Redirection basée sur le rôle
-        switch($user['role']){
-            // case 'admin':
-            //     header('Location: dashboard_admin.php');
-            //     break;
-            case 'technicien':
-                header('Location: ../technicians/dashboard.php');
-                break;
-            default:
-                header('Location: ../employee/dashboard.php');
+        if ($user['role'] === 'technician') {
+            header("Location: ../technicians/dashboard.php");
+        } else {
+            header("Location: ../employee/dashboard.php");
         }
         exit();
     } else {
-        $error = "Identifiants incorrects";
+        $error = "Identifiants incorrects.";
     }
 }
 ?>
-
 
 
 <form method="POST">
