@@ -1,38 +1,50 @@
 <?php
-session_start();
-require __DIR__ . '/../includes/db.php';
-require __DIR__ . '/../includes/auth.php';
+require_once __DIR__.'/../includes/db.php';
+require_once __DIR__.'/../includes/auth.php';
 
-redirectIfNotLoggedIn();
+$equipements = $pdo->query("SELECT * FROM equipements WHERE statut = 'actif'")->fetchAll();
 
-$error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $equipement_id = trim($_POST['equipement_id'] ?? '');
-    $urgence = $_POST['urgence'] ?? 'moyenne';
-    $userId = $_SESSION['user_id'];
-    
-    $check_user = $conn->prepare("SELECT user_id FROM users WHERE user_id = ?");
-    $check_user->bind_param("i", $userId);
-    $check_user->execute();
-    $check_user->store_result();
-
-    if ($check_user->num_rows === 0) {
-        $error = "Utilisateur invalide";
-    } elseif (empty($title)) {
-        $error = "Le titre est requis";
-    } else {
-        $stmt = $conn->prepare("INSERT INTO tickets (title, description, equipement_id, urgence, user_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssi", $title, $description, $equipement_id, $urgence, $userId);
-        
-        if ($stmt->execute()) {
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            $error = "Erreur lors de la création du ticket: " . $conn->error;
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $required = ['equipement_id', 'description'];
+        foreach($required as $field) {
+            if(empty($_POST[$field])) {
+                throw new Exception("Le champ $field est requis");
+            }
         }
+
+        $equipement_id = $_POST['equipement_id'];
+        $description = $_POST['description'];
+        $urgence = $_POST['urgence'] ?? 'moyenne';
+
+        $stmt = $pdo->prepare("SELECT 1 FROM equipements WHERE equipement_id = ?");
+        $stmt->execute([$equipement_id]);
+        if(!$stmt->fetch()) {
+            throw new Exception("Équipement invalide");
+        }
+
+        $insert = $pdo->prepare("
+            INSERT INTO tickets 
+            (title, description, user_id, equipement_id, urgence, statut)
+            VALUES (?, ?, ?, ?, ?, 'en_attente')
+        ");
+        
+        $insert->execute([
+            "Problème avec équipement $equipement_id",
+            $description,
+            $_SESSION['user_id'],
+            $equipement_id,
+            $urgence
+        ]);
+
+        $_SESSION['success'] = "Ticket créé avec succès";
+        header('Location: dashboard.php');
+        exit();
+
+    } catch(Exception $e) {
+        $_SESSION['error'] = $e->getMessage();
+        header('Location: create_ticket.php');
+        exit();
     }
 }
 ?>
@@ -75,33 +87,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
     
-    <form method="POST">
-        <div>
-            <label for="title">Titre:</label>
-            <input type="text" name="title" id="title" required>
-        </div>
-        
-        <div>
-            <label for="equipement_id">Equipment:</label>
-            <input type="text" name="equipment_id" id="equipment_id" required>
-        </div>
-        
-        <div>
-            <label for="urgence">Niveau d'urgence</label>
-            <select name="urgence" id="urgence" required>
-                <option value="low">Bas</option>
-                <option value="medium" selected>Moyen</option>
-                <option value="high">Elevé</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="description">Description:</label>
-            <textarea name="description" id="description"></textarea>
-        </div>
-        
-        <button type="submit">Soumettre le ticket</button>
-    </form>
+    <form method="post">
+    <div class="form-group">
+        <label>Équipement</label>
+        <select name="equipement_id" class="form-control" required>
+            <option value="">Sélectionnez un équipement</option>
+            <?php foreach($equipements as $eq): ?>
+                <option value="<?= $eq['equipement_id'] ?>">
+                    <?= htmlspecialchars($eq['nom']) ?> (<?= $eq['reference'] ?>)
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Description du problème</label>
+        <textarea name="description" class="form-control" required></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>Urgence</label>
+        <select name="urgence" class="form-control">
+            <option value="basse">Basse</option>
+            <option value="moyenne" selected>Moyenne</option>
+            <option value="haute">Haute</option>
+        </select>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Créer le ticket</button>
+</form>
     
     <p><a href="dashboard.php">Précedent</a></p>
 </body>
