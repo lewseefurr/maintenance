@@ -10,7 +10,7 @@ $techId = $_SESSION['user_id'];
 $result = mysqli_query($conn, 
     "SELECT t.*, u.username as creator 
     FROM tickets t
-    JOIN users u ON t.created_by = u.id
+    JOIN users u ON t.created_by = u.user_id
     WHERE t.status != 'resolved' 
     AND (t.assigned_to IS NULL OR t.assigned_to = $techId)"
 );

@@ -7,13 +7,13 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
-    $role = 'employee';
-    $allowed_roles = ['employee', 'technician'];
+    $role = 'employe';
+    $allowed_roles = ['employe', 'technicien'];
     if (isset($_POST['role']) && in_array($_POST['role'], $allowed_roles)) {
         $role = $_POST['role'];
     }
 
-    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT user_id FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     if ($stmt->get_result()->num_rows > 0) {
@@ -50,14 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form method="POST" action="signup.php">
     <h2>Créer un compte :</h2>
     <p>Déjà un compte ? <a href="login.php">Se connecter</a></p>
+    <input type="text" name="nom" placeholder="Nom Complet" required><br>
     <input type="text" name="username" placeholder="Nom d'utilisateur" required><br>
     <input type="password" name="password" placeholder="Mot de passe" required><br>
+
     <div class="role-selection">
         <label>
-            <input type="radio" name="role" value="employee" checked> Employee
+            <input type="radio" name="role" value="employe" checked> Employee
         </label>
         <label>
-            <input type="radio" name="role" value="technician"> Technician
+            <input type="radio" name="role" value="technicien"> Technician
         </label>
     </div>
     <button type="submit">S'inscrire</button>
@@ -96,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            width: 100%;
+            width: 95%;
         }
         button:hover {
             background-color: #007BFF;
