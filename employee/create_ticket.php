@@ -2,7 +2,12 @@
 require_once __DIR__.'/../includes/db.php';
 require_once __DIR__.'/../includes/auth.php';
 
-$equipements = $pdo->query("SELECT * FROM equipements WHERE statut = 'actif'")->fetchAll();
+$error = '';
+$equipements = [];
+$result = $conn->query("SELECT equipement_id, nom FROM equipements WHERE statut = 'actif'");
+while ($row = $result->fetch_assoc()) {
+    $equipements[] = $row;
+}
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -13,38 +18,38 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $equipement_id = $_POST['equipement_id'];
-        $description = $_POST['description'];
-        $urgence = $_POST['urgence'] ?? 'moyenne';
+        $equipement_id = (int)$_POST['equipement_id'];
+        $description = $conn->real_escape_string($_POST['description']);
+        $urgence = isset($_POST['urgence']) && in_array($_POST['urgence'], ['basse','moyenne','haute']) 
+                 ? $_POST['urgence'] 
+                 : 'moyenne';
 
-        $stmt = $pdo->prepare("SELECT 1 FROM equipements WHERE equipement_id = ?");
-        $stmt->execute([$equipement_id]);
-        if(!$stmt->fetch()) {
+        $check = $conn->prepare("SELECT 1 FROM equipements WHERE equipement_id = ?");
+        $check->bind_param("i", $equipement_id);
+        $check->execute();
+        if(!$check->get_result()->fetch_assoc()) {
             throw new Exception("Équipement invalide");
         }
 
-        $insert = $pdo->prepare("
+        $insert = $conn->prepare("
             INSERT INTO tickets 
-            (title, description, user_id, equipement_id, urgence, statut)
-            VALUES (?, ?, ?, ?, ?, 'en_attente')
+            (title, description, user_id, equipement_id, urgence, statut, date_creation)
+            VALUES (?, ?, ?, ?, ?, 'en_attente', NOW())
         ");
         
-        $insert->execute([
-            "Problème avec équipement $equipement_id",
-            $description,
-            $_SESSION['user_id'],
-            $equipement_id,
-            $urgence
-        ]);
+        $title = "Ticket #" . time(); 
+        
+        if(!$insert->bind_param("ssiis", $title, $description, $_SESSION['user_id'], $equipement_id, $urgence) || 
+           !$insert->execute()) {
+            throw new Exception("Erreur création ticket: " . $insert->error);
+        }
 
         $_SESSION['success'] = "Ticket créé avec succès";
         header('Location: dashboard.php');
         exit();
 
     } catch(Exception $e) {
-        $_SESSION['error'] = $e->getMessage();
-        header('Location: create_ticket.php');
-        exit();
+        $error = $e->getMessage();
     }
 }
 ?>
@@ -88,35 +93,32 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     
     <form method="post">
-    <div class="form-group">
-        <label>Équipement</label>
-        <select name="equipement_id" class="form-control" required>
-            <option value="">Sélectionnez un équipement</option>
-            <?php foreach($equipements as $eq): ?>
-                <option value="<?= $eq['equipement_id'] ?>">
-                    <?= htmlspecialchars($eq['nom']) ?> (<?= $eq['reference'] ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label>Description du problème</label>
-        <textarea name="description" class="form-control" required></textarea>
-    </div>
-    
-    <div class="form-group">
-        <label>Urgence</label>
-        <select name="urgence" class="form-control">
-            <option value="basse">Basse</option>
-            <option value="moyenne" selected>Moyenne</option>
-            <option value="haute">Haute</option>
-        </select>
-    </div>
-    
-    <button type="submit" class="btn btn-primary">Créer le ticket</button>
-</form>
+        <div class="form-group">
+            <label for="equipement_id">Nom de l'Équipement</label>
+            <input type="text" id="equipement_id" name="equipement_id" required 
+                   value="<?= isset($_POST['equipement_id']) ? htmlspecialchars($_POST['equipement_id']) : '' ?>">
+        </div>
+        
+        <div class="form-group">
+            <label>Description du problème</label>
+            <textarea name="description" class="form-control" required><?= 
+                isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' 
+            ?></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Urgence</label>
+            <select name="urgence" class="form-control">
+                <option value="basse" <?= (isset($_POST['urgence']) && $_POST['urgence'] === 'basse') ? 'selected' : '' ?>>Basse</option>
+                <option value="moyenne" <?= !isset($_POST['urgence']) || $_POST['urgence'] === 'moyenne' ? 'selected' : '' ?>>Moyenne</option>
+                <option value="haute" <?= (isset($_POST['urgence']) && $_POST['urgence'] === 'haute') ? 'selected' : '' ?>>Haute</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Créer le ticket</button>
+    </form>
     
     <p><a href="dashboard.php">Précedent</a></p>
 </body>
 </html>
+

@@ -6,16 +6,25 @@ require __DIR__ . '/../includes/auth.php';
 redirectIfNotLoggedIn();
 
 $userId = $_SESSION['user_id'];
-$result = mysqli_query($conn, "
-    SELECT user_id, title, equipement_id, urgence, description, statut, date_creation 
-    FROM tickets 
-    WHERE user_id = $userId
-    ORDER BY date_creation DESC
-");
+$query = "
+    SELECT 
+        t.ticket_id,
+        t.title,
+        e.nom AS equipement_nom,
+        t.urgence,
+        t.description,
+        t.statut,
+        DATE_FORMAT(t.date_creation, '%d/%m/%Y %H:%i') AS date_creation
+    FROM tickets t
+    JOIN equipements e ON t.equipement_id = e.equipement_id
+    WHERE t.user_id = ?
+    ORDER BY t.date_creation DESC
+";
 
-if (!$result) {
-    die("Query failed: " . mysqli_error($conn));
-}
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -40,39 +49,44 @@ if (!$result) {
     </style>
 </head>
 <body>
-    <h1>Mode : Employée</h1>
-    <a href="create_ticket.php" class="new-ticket">New Ticket</a>
+    <h1>Tableau de Bord Employé</h1>
+    <a href="create_ticket.php" class="new-ticket">Nouveau Ticket</a>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <div style="color:green; margin-bottom:15px;"><?= $_SESSION['success'] ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
     
     <h2>Mes Tickets</h2>
-    <?php if (mysqli_num_rows($result) > 0): ?>
+    <?php if ($result->num_rows > 0): ?>
     <table>
         <tr>
             <th>ID</th>
             <th>Titre</th>
-            <th>Equipment</th>
-            <th>Niv.Urgence</th>
+            <th>Équipement</th>
+            <th>Urgence</th>
             <th>Description</th>
             <th>Statut</th>
-            <th>Date Création</th>
+            <th>Date</th>
         </tr>
-        <?php while ($row = mysqli_fetch_assoc($result)): ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
-            <td><?= $row['id'] ?></td>
+            <td><?= $row['ticket_id'] ?></td>
             <td><?= htmlspecialchars($row['title']) ?></td>
-            <td><?= htmlspecialchars($row['equipment']) ?></td>
-            <td class="urgency-<?= $row['urgency'] ?>">
-                <?= ucfirst($row['urgency']) ?>
+            <td><?= htmlspecialchars($row['equipement_nom']) ?></td>
+            <td class="urgency-<?= $row['urgence'] ?>">
+                <?= ucfirst($row['urgence']) ?>
             </td>
-            <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
-            <td><?= ucfirst(str_replace('_', ' ', $row['status'])) ?></td>
-            <td><?= date('Y-m-d H:i', strtotime($row['created_at'])) ?></td>
+            <td><?= htmlspecialchars($row['description']) ?></td>
+            <td><?= ucfirst(str_replace('_', ' ', $row['statut'])) ?></td>
+            <td><?= $row['date_creation'] ?></td>
         </tr>
         <?php endwhile; ?>
     </table>
     <?php else: ?>
-    <p>Vous n'avez aucun ticket au moment.</p>
+    <p>Aucun ticket trouvé.</p>
     <?php endif; ?>
     
-    <p><a href="../auth/logout.php">Se deconnécter</a></p>
+    <p><a href="../auth/logout.php">Déconnexion</a></p>
 </body>
 </html>

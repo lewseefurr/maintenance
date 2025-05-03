@@ -20,7 +20,8 @@ const tables = [
     equipement_id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     description TEXT,
-    date_achat DATE
+    statut ENUM('actif', 'en_panne', 'maintenance', 'hors_service') NOT NULL DEFAULT 'actif',
+    date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
 
   `CREATE TABLE IF NOT EXISTS tickets (
