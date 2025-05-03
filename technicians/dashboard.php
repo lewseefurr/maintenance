@@ -8,11 +8,21 @@ redirectIfNotTechnician();
 
 $techId = $_SESSION['user_id'];
 $result = mysqli_query($conn, 
-    "SELECT t.*, u.username as creator 
-    FROM tickets t
-    JOIN users u ON t.created_by = u.user_id
-    WHERE t.status != 'resolved' 
-    AND (t.assigned_to IS NULL OR t.assigned_to = $techId)"
+    "SELECT 
+        t.ticket_id,
+        t.title,
+        t.description,
+        t.urgence,
+        t.statut,
+        t.date_creation,
+        t.equipement_id,
+        u.username AS createur,
+        e.nom AS equipement_nom
+     FROM tickets t
+     JOIN users u ON t.user_id = u.user_id 
+     JOIN equipements e ON t.equipement_id = e.equipement_id  
+     WHERE t.statut != 'résolu' 
+     ORDER BY t.date_creation DESC"  
 );
 
 if (!$result) {

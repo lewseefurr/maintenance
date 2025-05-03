@@ -6,7 +6,7 @@ include __DIR__ . '/../includes/db.php';
 $error = '';
 
 if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] === 'technician') {
+    if ($_SESSION['role'] === 'technicien') {
         header("Location: ../technicians/dashboard.php");
     } else {
         header("Location: ../employee/dashboard.php");

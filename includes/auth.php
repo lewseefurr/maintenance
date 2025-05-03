@@ -10,7 +10,7 @@ function redirectIfNotLoggedIn() {
 }
 
 function redirectIfNotTechnician() {
-    if ($_SESSION['role'] !== 'technician') {
+    if ($_SESSION['role'] !== 'technicien') {
         header("Location: ../auth/unauthorized.php");
         exit();
     }
