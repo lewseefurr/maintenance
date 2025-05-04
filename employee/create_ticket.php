@@ -86,7 +86,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <h1>Create New Ticket</h1>
+    <h1>Créer un Ticket</h1>
     
     <?php if ($error): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
@@ -94,31 +94,37 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <form method="post">
         <div class="form-group">
-            <label for="equipement_id">Nom de l'Équipement</label>
-            <input type="text" id="equipement_id" name="equipement_id" required 
-                   value="<?= isset($_POST['equipement_id']) ? htmlspecialchars($_POST['equipement_id']) : '' ?>">
+            <label>Équipement</label>
+            <select name="equipement_id" required>
+                <option value="">Sélectionnez un équipement</option>
+                <?php foreach($equipements as $eq): ?>
+                    <option value="<?= $eq['equipement_id'] ?>" 
+                        <?= isset($_POST['equipement_id']) && $_POST['equipement_id'] == $eq['equipement_id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($eq['nom']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         
         <div class="form-group">
-            <label>Description du problème</label>
-            <textarea name="description" class="form-control" required><?= 
+            <label>Description</label>
+            <textarea name="description" required><?= 
                 isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' 
             ?></textarea>
         </div>
         
         <div class="form-group">
             <label>Urgence</label>
-            <select name="urgence" class="form-control">
-                <option value="basse" <?= (isset($_POST['urgence']) && $_POST['urgence'] === 'basse') ? 'selected' : '' ?>>Basse</option>
+            <select name="urgence">
+                <option value="basse" <?= isset($_POST['urgence']) && $_POST['urgence'] === 'basse' ? 'selected' : '' ?>>Basse</option>
                 <option value="moyenne" <?= !isset($_POST['urgence']) || $_POST['urgence'] === 'moyenne' ? 'selected' : '' ?>>Moyenne</option>
-                <option value="haute" <?= (isset($_POST['urgence']) && $_POST['urgence'] === 'haute') ? 'selected' : '' ?>>Haute</option>
+                <option value="haute" <?= isset($_POST['urgence']) && $_POST['urgence'] === 'haute' ? 'selected' : '' ?>>Haute</option>
             </select>
         </div>
         
-        <button type="submit" class="btn btn-primary">Créer le ticket</button>
+        <button type="submit">Créer</button>
     </form>
     
-    <p><a href="dashboard.php">Précedent</a></p>
+    <p><a href="dashboard.php">Retour</a></p>
 </body>
 </html>
-
