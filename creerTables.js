@@ -6,6 +6,21 @@ const connection = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD
 });
+async function seedEquipements() {
+  const equipements = [
+    ['PC Dell Precision', 'Workstation i7, 32GB RAM', 'En service'],
+    ['Imprimante Brother HL-L2370DW', 'Noir et blanc, réseau', 'En panne']
+  ];
+  try {
+    await pool.query(`
+      INSERT INTO equipement (nom, description, statut)
+      VALUES ?
+    `, [equipements]);
+    console.log('✅ Équipements exemples ajoutés');
+  } catch (err) {
+    console.error('❌ Erreur lors de l\'insertion :', err);
+  }
+}
 
 const tables = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -63,3 +78,4 @@ connection.connect((err) => {
     });
   });
 });
+seedEquipements();

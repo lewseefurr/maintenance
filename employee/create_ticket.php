@@ -3,53 +3,31 @@ require_once __DIR__.'/../includes/db.php';
 require_once __DIR__.'/../includes/auth.php';
 
 $error = '';
-$equipements = [];
-$result = $conn->query("SELECT equipement_id, nom FROM equipements WHERE statut = 'actif'");
-while ($row = $result->fetch_assoc()) {
-    $equipements[] = $row;
-}
 
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $required = ['equipement_id', 'description'];
-        foreach($required as $field) {
-            if(empty($_POST[$field])) {
-                throw new Exception("Le champ $field est requis");
-            }
-        }
+$equipements = $conn->query("SELECT * FROM equipements ORDER BY nom")->fetch_all(MYSQLI_ASSOC);
 
-        $equipement_id = (int)$_POST['equipement_id'];
-        $description = $conn->real_escape_string($_POST['description']);
-        $urgence = isset($_POST['urgence']) && in_array($_POST['urgence'], ['basse','moyenne','haute']) 
-                 ? $_POST['urgence'] 
-                 : 'moyenne';
-
-        $check = $conn->prepare("SELECT 1 FROM equipements WHERE equipement_id = ?");
-        $check->bind_param("i", $equipement_id);
-        $check->execute();
-        if(!$check->get_result()->fetch_assoc()) {
-            throw new Exception("Équipement invalide");
-        }
-
-        $insert = $conn->prepare("
-            INSERT INTO tickets 
-            (title, description, user_id, equipement_id, urgence, statut, date_creation)
-            VALUES (?, ?, ?, ?, ?, 'en_attente', NOW())
-        ");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $equipement_id = (int)$_POST['equipement_id'];
+    $description = $conn->real_escape_string($_POST['description']);
+    $user_id = $_SESSION['user_id']; 
+    
+    $stmt = $conn->prepare("SELECT equipement_id FROM equipements WHERE equipement_id = ?");
+    $stmt->bind_param("i", $equipement_id);
+    $stmt->execute();
+    
+    if (!$stmt->get_result()->num_rows) {
+        $error = "L'équipement sélectionné n'existe pas";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO tickets (equipement_id, user_id, description) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $equipement_id, $user_id, $description);
         
-        $title = "Ticket #" . time(); 
-        
-        if(!$insert->bind_param("ssiis", $title, $description, $_SESSION['user_id'], $equipement_id, $urgence) || 
-           !$insert->execute()) {
-            throw new Exception("Erreur création ticket: " . $insert->error);
+        if ($stmt->execute()) {
+            $_SESSION['success'] = "Ticket créé avec succès!";
+            header("Location: dashboard.php");
+            exit();
+        } else {
+            $error = "Erreur: " . $conn->error;
         }
-
-        $_SESSION['success'] = "Ticket créé avec succès";
-        header('Location: dashboard.php');
-        exit();
-
-    } catch(Exception $e) {
-        $error = $e->getMessage();
     }
 }
 ?>
@@ -92,28 +70,27 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
     
-    <form method="post">
-        <div class="form-group">
-            <label>Équipement</label>
-            <select name="equipement_id" required>
-                <option value="">Sélectionnez un équipement</option>
-                <?php foreach($equipements as $eq): ?>
-                    <option value="<?= $eq['equipement_id'] ?>" 
-                        <?= isset($_POST['equipement_id']) && $_POST['equipement_id'] == $eq['equipement_id'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($eq['nom']) ?>
+        <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Équipement</label>
+            <select name="equipement_id" class="form-select" required>
+                <option value="">-- Sélectionnez --</option>
+                <?php foreach ($equipements as $e): ?>
+                    <option value="<?= $e['equipement_id'] ?>">
+                        <?= htmlspecialchars($e['nom']) ?> - <?= $e['statut'] ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </div>
         
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <textarea name="description" required><?= 
                 isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' 
             ?></textarea>
         </div>
         
-        <div class="form-group">
+        <div class="mb-3">
             <label>Urgence</label>
             <select name="urgence">
                 <option value="basse" <?= isset($_POST['urgence']) && $_POST['urgence'] === 'basse' ? 'selected' : '' ?>>Basse</option>
@@ -122,7 +99,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
         </div>
         
-        <button type="submit">Créer</button>
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger mt-3"><?= $error ?></div>
+        <?php endif; ?>
     </form>
     
     <p><a href="dashboard.php">Retour</a></p>
