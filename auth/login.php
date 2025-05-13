@@ -25,8 +25,9 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $user['role']; 
+        $_SESSION['nom'] = $user['nom'];
         
-        if ($user['role'] === 'technician') {
+        if ($user['role'] === 'technicien') {
             header("Location: ../technicians/dashboard.php");
         } else {
             header("Location: ../employee/dashboard.php");

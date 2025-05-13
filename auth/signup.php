@@ -6,6 +6,7 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
+    $nom = $_POST['nom'];
     $password = $_POST['password'];
     $role = 'employe';
     $allowed_roles = ['employe', 'technicien'];
@@ -20,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Ce nom d'utilisateur est déjà pris.";
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $hashedPassword, $role);
+        $stmt = $conn->prepare("INSERT INTO users (nom, username, password, role) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $nom, $username, $hashedPassword, $role);
         
         if ($stmt->execute()) {
             header("Location: login.php?signup=success");
