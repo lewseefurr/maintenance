@@ -31,6 +31,10 @@ const equipements = [
   ['Climatisation LG 12 000 BTU', 'Climatiseur de salle serveur', 'hors_service'],
   ['Disque dur externe WD Elements 2To', 'Sauvegardes de postes utilisateurs', 'actif']
 ];
+const defaultAdmin = [
+  ['Admin', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin']
+  //  "password" hashed
+];
 
 const tables = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -62,6 +66,7 @@ const tables = [
     statut ENUM('ouvert', 'en_cours', 'résolu') DEFAULT 'ouvert',
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_resolution TIMESTAMP NULL,
+    resolution_comment TEXT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (equipement_id) REFERENCES equipements(equipement_id),
     FOREIGN KEY (assigned_to) REFERENCES users(user_id)
@@ -77,6 +82,18 @@ async function initializeDatabase() {
       await pool.query(tableSQL);
     }
     console.log('✅ Toutes les tables ont été créées');
+
+    const [existingAdmin] = await pool.query("SELECT * FROM users WHERE username = 'admin'");
+    
+    if (existingAdmin.length === 0) {
+      await pool.query(`
+        INSERT INTO users (nom, username, password, role)
+        VALUES ?
+      `, [defaultAdmin]);
+      console.log('✅ Compte admin par défaut créé');
+    } else {
+      console.log('ℹ️ Compte admin existe déjà');
+    }
 
     await pool.query(`
       INSERT INTO equipements (nom, description, statut)

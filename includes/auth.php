@@ -9,6 +9,13 @@ function redirectIfNotLoggedIn() {
     }
 }
 
+function redirectIfNotAdmin() {
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+        header('Location: ../index.php');
+        exit();
+    }
+}
+
 function redirectIfNotTechnician() {
     if ($_SESSION['role'] !== 'technicien') {
         header("Location: ../auth/unauthorized.php");

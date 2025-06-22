@@ -375,11 +375,11 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
                             <i class="bi bi-ticket-detailed"></i> Mes tickets
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="equipements.php">
                             <i class="bi bi-pc-display"></i> Équipements
                         </a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link" href="profil.php">
                             <i class="bi bi-person-circle"></i> Mon profil
@@ -566,7 +566,7 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
                     <div class="footer-links">
                         <a href="dashboard.php">Tableau de bord</a>
                         <a href="tickets.php">Mes tickets</a>
-                        <a href="equipements.php">Équipements</a>
+                        <!-- <a href="equipements.php">Équipements</a> -->
                         <a href="profil.php">Mon profil</a>
                     </div>
                 </div>

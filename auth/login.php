@@ -5,10 +5,13 @@ include __DIR__ . '/../includes/db.php';
 
 $error = '';
 
+
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] === 'technicien') {
         header("Location: ../technicians/dashboard.php");
-    } else {
+    } elseif ($_SESSION['role'] === 'admin') {
+        header("Location: ../admin/dashboard.php");
+    }else {
         header("Location: ../employee/dashboard.php");
     }
     exit();
@@ -29,6 +32,8 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         
         if ($user['role'] === 'technicien') {
             header("Location: ../technicians/dashboard.php");
+        } elseif ($user['role'] === 'admin') {
+            header("Location: ../admin/dashboard.php");
         } else {
             header("Location: ../employee/dashboard.php");
         }
