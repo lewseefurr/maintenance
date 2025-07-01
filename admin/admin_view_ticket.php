@@ -7,7 +7,7 @@ redirectIfNotLoggedIn();
 redirectIfNotAdmin();
 
 if (!isset($_GET['id'])) {
-    header('Location: admin_dashboard.php');
+    header('Location: dashboard.php');
     exit();
 }
 
@@ -22,7 +22,7 @@ $ticket = mysqli_fetch_assoc(mysqli_query($conn,
 
 if (!$ticket) {
     $_SESSION['error'] = "Ticket non trouvé";
-    header('Location: admin_dashboard.php');
+    header('Location: dashboard.php');
     exit();
 }
 
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['statut'])) {
     <main class="container mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Détails du Ticket #<?= $ticket['ticket_id'] ?></h2>
-            <a href="admin_dashboard.php" class="btn btn-secondary">
+            <a href="dashboard.php" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Retour
             </a>
         </div>

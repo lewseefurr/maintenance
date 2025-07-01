@@ -255,11 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="bi bi-ticket-detailed"></i> Tickets
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reports.php">
-                            <i class="bi bi-graph-up"></i> Rapports
-                        </a>
-                    </li>
+                    
                 </ul>
                 <div class="d-flex align-items-center">
                     <div class="dropdown">
@@ -271,9 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="bi bi-person-circle fs-4"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i> Profil</a></li>
-                            <li><a class="dropdown-item" href="settings.php"><i class="bi bi-gear me-2"></i> Paramètres</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            
                             <li><a class="dropdown-item text-danger" href="../auth/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                         </ul>
                     </div>
@@ -356,7 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="footer-links">
                         <a href="dashboard.php">Tableau de bord</a>
                         <a href="tickets.php">Tickets</a>
-                        <a href="reports.php">Rapports</a>
+                        
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">

@@ -353,7 +353,6 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
     </style>
 </head>
 <body>
-    <!-- Navigation principale -->
     <nav class="navbar navbar-expand-lg main-navbar">
         <div class="container">
             <a class="navbar-brand" href="dashboard.php">
@@ -380,11 +379,11 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
                             <i class="bi bi-pc-display"></i> Équipements
                         </a>
                     </li> -->
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="profil.php">
                             <i class="bi bi-person-circle"></i> Mon profil
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
                 <div class="d-flex align-items-center">
                     <span class="me-3 d-none d-lg-block text-muted">
@@ -399,7 +398,6 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
         </div>
     </nav>
 
-    <!-- Header moderne -->
     <header class="dashboard-header">
         <div class="container header-content">
             <div class="d-flex justify-content-between align-items-start">
@@ -567,7 +565,7 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
                         <a href="dashboard.php">Tableau de bord</a>
                         <a href="tickets.php">Mes tickets</a>
                         <!-- <a href="equipements.php">Équipements</a> -->
-                        <a href="profil.php">Mon profil</a>
+                        <!-- <a href="profil.php">Mon profil</a> -->
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6 mb-4 mb-md-0">

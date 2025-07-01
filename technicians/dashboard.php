@@ -389,16 +389,7 @@ $resolved_count = mysqli_fetch_assoc(mysqli_query($conn,
                             <i class="bi bi-ticket-detailed"></i> Gestion des tickets
                         </a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="equipements.php">
-                            <i class="bi bi-pc-display"></i> Équipements
-                        </a>
-                    </li> -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="reports.php">
-                            <i class="bi bi-graph-up"></i> Rapports
-                        </a>
-                    </li>
+                    
                 </ul>
                 <div class="d-flex align-items-center">
                     <div class="dropdown">
@@ -410,9 +401,7 @@ $resolved_count = mysqli_fetch_assoc(mysqli_query($conn,
                             <i class="bi bi-person-circle fs-4"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i> Mon profil</a></li>
-                            <li><a class="dropdown-item" href="settings.php"><i class="bi bi-gear me-2"></i> Paramètres</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            
                             <li><a class="dropdown-item text-danger" href="../auth/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
                         </ul>
                     </div>
@@ -613,8 +602,7 @@ $resolved_count = mysqli_fetch_assoc(mysqli_query($conn,
                     <div class="footer-links">
                         <a href="dashboard.php">Tableau de bord</a>
                         <a href="tickets.php">Tickets</a>
-                        <!-- <a href="equipements.php">Équipements</a> -->
-                        <a href="reports.php">Rapports</a>
+                        
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">

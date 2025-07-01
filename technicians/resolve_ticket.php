@@ -80,6 +80,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Résoudre le ticket | TechDashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        .card {
+            border-radius: 1rem;
+            border: none;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+            border-bottom: none;
+            padding: 1.5rem 2rem;
+        }
+        .card-body {
+            padding: 2rem;
+            background: #fff;
+        }
+        h4, h5 {
+            font-weight: 600;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+        textarea.form-control {
+            border-radius: 0.5rem;
+            resize: vertical;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+            border: none;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+        }
+        .btn-outline-secondary {
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        .text-muted {
+            color: #6c757d !important;
+        }
+        @media (max-width: 768px) {
+            .card-body, .card-header {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container py-5">
